@@ -1,6 +1,27 @@
-<?php include("path.php"); ?>
+<?php include("path.php"); 
+
+?>
 <?php  include(ROOT_PATH . '/controllers/functions.php'); 
 $postsTitle = 'Recent Posts';
+
+if (isset($_GET['search-term'])){
+	$postsTitle = "You searched for '" . $_GET['search-term'] . "'";
+
+    $results = search($_GET['search-term']);
+    if(is_array($results)){
+        $posts = $results;
+    }
+    else{
+       $posts = "";
+	}
+}
+    
+if(isset($_GET['t_id'])){
+	$posts = getPublishedTopics($_GET['t_id']);
+	$postsTitle = "You searched for posts under '" . $_GET['name'] . "'";
+ }
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,7 +68,7 @@ $postsTitle = 'Recent Posts';
                         <div class="after-user-text"><?php echo date('F j, Y', strtotime($post['time'])); ?></div>
                     </div>
                     <div class="description">
-                        <?php echo html_entity_decode(substr($post['description'], 0, 150) . '...'); ?>
+                        <?php echo html_entity_decode(substr($post['description'], 0, 250) . '...'); ?>
                     </div>
                         <a href="single.php?id=<?php echo $post['id'] ;?>" class="read-more">Open</a>
                 </div>
@@ -90,7 +111,7 @@ $postsTitle = 'Recent Posts';
                     </ul>
                 </div>
             </div>
-        </div>  
+        </div>
 
         <!--END--SIDEBAR-->
     </div>

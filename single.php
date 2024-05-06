@@ -59,6 +59,7 @@ $comments = selectAllComments($_POST['id']);
                     </div>
                     </form>
                 </div>
+                <?php endif; ?>
                 <h2 class="post-title"> Comments</h2>
                 <div class="comments-list">
                     <?php foreach ($comments as $c)  :?>
@@ -78,7 +79,7 @@ $comments = selectAllComments($_POST['id']);
                     <?php endforeach; ?>
                 </div>
 
-                <?php endif; ?>
+               
             </div>
     </div>
 

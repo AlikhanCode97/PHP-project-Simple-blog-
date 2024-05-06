@@ -56,7 +56,8 @@ $errors = validateComment($_POST);
         $post_id = $_POST['id'];
         $comment = $_POST['comment'];
         $time = date("Y-m-d H:i:s");
-        $query = "INSERT INTO comments (user_id, post_id, time,text) VALUES ('$author', '$post_id','$time','$comment')";
+        $escaped_content = mysqli_real_escape_string($conn, $comment);
+        $query = "INSERT INTO comments (user_id, post_id, time,text) VALUES ('$author', '$post_id','$time','$escaped_content')";
         if ($conn->query($query) === TRUE) {
             $_SESSION['message'] ='Comment created successfully';
             $_SESSION['type'] ='success';
@@ -79,23 +80,7 @@ if(isset($_GET['post_id'])) {
     $published = $post['published'];
 }
 
-if (isset($_GET['search-term'])){
-	$postsTitle = "You searched for '" . $_GET['search-term'] . "'";
 
-    $results = search($_GET['search-term']);
-    if(is_array($results)){
-        $posts = $results;
-    }
-    else{
-       $posts = "";
-	}
-}
-
-    
-if(isset($_GET['t_id'])){
-	$posts = getPublishedTopics($_GET['t_id']);
-	$postsTitle = "You searched for posts under '" . $_GET['name'] . "'";
- }
 
 
 
@@ -236,8 +221,10 @@ function selectUser($condition1)
 
 function selectPost($condition1)
 {
+    
 	global $conn;
-	$sql = "SELECT * FROM `posts` WHERE title = '$condition1' ";
+    $text = mysqli_real_escape_string($conn, $condition1);
+	$sql = "SELECT * FROM `posts` WHERE title = '$text' ";
     $result = $conn->query($sql);
     if ($result->num_rows == 1) {
         // User found, set session variables and redirect
@@ -296,27 +283,29 @@ function selectTopicbyID($condition1)
     }
 
 }
-
-if(isset($_POST['register_btn']))
-{
+if (isset($_POST['register_btn'])) {
     global $conn;
-	$errors = validateUser($_POST);
-	if(count($errors) === 0 ){
     
-	$_POST['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $fname = $_POST['fname'];
-    $sname = $_POST['sname'];
-    $email = $_POST['email'];
-    $role_id = $_POST['role_id'];
-    $query = "INSERT INTO users (username, password, email,first_name,second_name,role_id) VALUES ('$username', '$password','$email','$fname','$sname','$role_id')";
-    if ($conn->query($query) === TRUE) {
-        $user = selectExistingUser($email, $password);
-        loginUser($user);
-    } 
+    $errors = validateUser($_POST);
 
-	} else{
+    if (count($errors) === 0) {
+        $username = mysqli_real_escape_string($conn, $_POST['username']);
+        $password = mysqli_real_escape_string($conn, password_hash($_POST['password'], PASSWORD_DEFAULT));
+        $fname = mysqli_real_escape_string($conn, $_POST['fname']);
+        $sname = mysqli_real_escape_string($conn, $_POST['sname']);
+        $email = mysqli_real_escape_string($conn, $_POST['email']);
+        $role_id = mysqli_real_escape_string($conn, $_POST['role_id']);
+
+        $query = "INSERT INTO users (username, password, email, first_name, second_name, role_id) VALUES ('$username', '$password', '$email', '$fname', '$sname', '$role_id')";
+
+        if ($conn->query($query) === TRUE) {
+            $user = selectExistingUser($email, $password);
+            loginUser($user);
+        } else {
+            // Handle the case where the query execution failed
+            echo "Error: " . $query . "<br>" . $conn->error;
+        }
+    }  else{
 		$username = $_POST['username'];
         $email = $_POST['email'];
         $password = $_POST['password'];
@@ -404,7 +393,9 @@ if($result){
         $published = isset($_POST['published']) ? 1 : 0;
         $time = date("Y-m-d H:i:s");
         $escaped_content = mysqli_real_escape_string($conn, $description);
-        $query = "INSERT INTO posts (title, description, author,topic_id,published,time , image) VALUES ('$title', '$escaped_content','$author','$topic_id','$published','$time','$image')";
+        $escaped_content1 = mysqli_real_escape_string($conn, $title);
+        var_dump($escaped_content1);
+        $query = "INSERT INTO posts (title, description, author,topic_id,published,time , image) VALUES ('$escaped_content1', '$escaped_content','$author','$topic_id','$published','$time','$image')";
         if ($conn->query($query) === TRUE) {
             $_SESSION['message'] ='Post created successfully';
             $_SESSION['type'] ='success';

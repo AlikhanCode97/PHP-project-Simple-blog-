@@ -11,7 +11,6 @@ function validatePost($post)
 	if(empty($post['topic_id'])){
 		array_push($errors, 'Select a topic ');
 	}
-
 	$existingPost = selectPost($post['title']);
     if($existingPost){
     	if(isset($post['update-post']) && $existingPost['id'] != $post['id']){
